@@ -1,4 +1,4 @@
-import { chartDummyData, timeRanges } from "@/constants";
+import { timeRanges } from "@/constants";
 import { CoinData, PriceEntry } from "@/types";
 import { create } from "zustand";
 
@@ -15,7 +15,7 @@ interface StoreState {
 export const useStore = create<StoreState>((set) => ({
   coinsList: [],
   timeRange: timeRanges[1],
-  coinPrices: chartDummyData,
+  coinPrices: [],
   setCoinsList: (newCoinsList: CoinData[]) => set({ coinsList: newCoinsList }),
   setTimeRange: (timeRange: string) => set({ timeRange }),
   setCoinPrices: (prices: PriceEntry[]) => set({ coinPrices: prices }),

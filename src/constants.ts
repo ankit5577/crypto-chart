@@ -33,23 +33,54 @@ export const coinDummyData = {
   last_updated: "2024-10-19T09:29:11.404Z",
 };
 
-export const chartDummyData: PriceEntry[] = [
-  [1729084750209, 67741.50537542607],
-  [1729088072251, 67899.28204498948],
-  [1729091917600, 67719.5946762508],
-  [1729130663808, 67858.8459657333],
-  [1729134149740, 67459.34522207073],
-  [1729137883086, 67575.81038181401],
-  [1729141974108, 67329.12323409185],
-  [1729144943759, 67339.18303715023],
-  [1729149211508, 67108.18186118477],
-  [1729152164533, 67282.61792681798],
-  [1729156642522, 67400.56598022403],
-  [1729159694652, 67260.94179047293],
-  [1729163151521, 67237.08796399015],
-  [1729166869519, 66909.04088406198],
-  [1729170443905, 67111.571368663],
-  [1729174772362, 66882.70873243679],
-  [1729177706255, 67027.42751254764],
-  [1729180850678, 67542.60133051021],
-];
+function generateDummyData(
+  startTimestamp: number,
+  numPoints: number,
+  interval: number,
+  startPrice: number
+): PriceEntry[] {
+  const data: PriceEntry[] = [];
+  let price = startPrice;
+
+  for (let i = 0; i < numPoints; i++) {
+    const timestamp = startTimestamp - i * interval;
+    // Simulate price fluctuation: +/- 1%
+    const fluctuation = price * 0.01 * (Math.random() - 0.5);
+    price = parseFloat((price + fluctuation).toFixed(2));
+    data.unshift([timestamp, price]);
+  }
+
+  return data;
+}
+
+const now = Date.now();
+
+const timeRangeConfigs: {
+  [key: string]: { numPoints: number; interval: number; startPrice: number };
+} = {
+  _1d: { numPoints: 24, interval: 60 * 60 * 1000, startPrice: 67741.5 },
+  _3d: { numPoints: 72, interval: 60 * 60 * 1000, startPrice: 67741.5 },
+  _1w: { numPoints: 7, interval: 24 * 60 * 60 * 1000, startPrice: 67741.5 },
+  _1m: { numPoints: 30, interval: 24 * 60 * 60 * 1000, startPrice: 67741.5 },
+  _6m: { numPoints: 180, interval: 24 * 60 * 60 * 1000, startPrice: 67741.5 },
+  _1y: { numPoints: 365, interval: 24 * 60 * 60 * 1000, startPrice: 67741.5 },
+};
+
+export const chartDummyData: { [key: string]: PriceEntry[] } = {
+  _1d: [],
+  _3d: [],
+  _1w: [],
+  _1m: [],
+  _6m: [],
+  _1y: [],
+};
+
+for (const range in timeRangeConfigs) {
+  const config = timeRangeConfigs[range];
+  chartDummyData[range] = generateDummyData(
+    now,
+    config.numPoints,
+    config.interval,
+    config.startPrice
+  );
+}

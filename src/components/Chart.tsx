@@ -1,5 +1,5 @@
 import { getCoinHistoricData } from "@/api/endpoints";
-import { timeRanges } from "@/constants";
+import { chartDummyData, timeRanges } from "@/constants";
 import { useStore } from "@/store";
 import { CoinData } from "@/types";
 import { getDaysFromTimeRange } from "@/utils";
@@ -32,6 +32,12 @@ export default function ChartComponent({ coin }: IProps) {
     coinPrices,
     setTimeRange
   );
+
+  function useDummyData() {
+    console.log("using dummy data for", timeRange);
+    setCoinPrices(chartDummyData[`_${timeRange}`]);
+    setLimitExceeded(() => false);
+  }
 
   useLayoutEffect(() => {
     const fetchData = async () => {
@@ -165,7 +171,8 @@ export default function ChartComponent({ coin }: IProps) {
         <ChartView
           data={coinPrices}
           loading={limitExceeded || loading}
-          limitExceeded={true}
+          limitExceeded={limitExceeded}
+          useDummyDataHandler={useDummyData}
         />
       </div>
     </div>

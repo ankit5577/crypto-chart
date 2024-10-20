@@ -14,6 +14,7 @@ export default function ChartComponent(props: any) {
     } = {},
     loading,
     limitExceeded,
+    useDummyDataHandler,
   } = props;
   const chartContainerRef = useRef<HTMLDivElement>();
 
@@ -143,7 +144,7 @@ export default function ChartComponent(props: any) {
         <ChartSkeleton
           text="CoinGecko API Limit Exceeded"
           actionHandlerText="use dummy data"
-          actionHandler={() => {}}
+          actionHandler={useDummyDataHandler}
         />
       );
     return <ChartSkeleton />;
