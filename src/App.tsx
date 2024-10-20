@@ -1,24 +1,44 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useLayoutEffect, useState } from "react";
+import { getCoinsList } from "./api/endpoints";
+import CoinDetails from "./components/CoinDetails";
+import { coinDummyData } from "./constants";
+import { useStore } from "./store";
+import { CoinData } from "./types";
 
 function App() {
+  const { setCoinsList } = useStore((state) => state);
+  const [selectedCoin, setSelectedCoin] = useState<CoinData | null>(null);
+
+  useLayoutEffect(() => {
+    (async () => {
+      try {
+        if (
+          coinDummyData &&
+          typeof coinDummyData === "object" &&
+          coinDummyData.id
+        ) {
+          setSelectedCoin(coinDummyData);
+          setCoinsList([coinDummyData]);
+        } else {
+          const fetchedCoinsList = await getCoinsList();
+          setCoinsList(fetchedCoinsList);
+          if (fetchedCoinsList?.length > 0) {
+            setSelectedCoin(fetchedCoinsList[0]);
+          }
+        }
+      } catch (error) {
+        console.error("Error setting up coin data:", error);
+      }
+    })();
+  }, []);
+
+  if (!selectedCoin) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="flex mx-auto my-20 max-w-screen-md">
+      <CoinDetails coin={selectedCoin} />
     </div>
   );
 }
