@@ -63,7 +63,12 @@ const timeRangeConfigs: {
   _1w: { numPoints: 7, interval: 24 * 60 * 60 * 1000, startPrice: 67741.5 },
   _1m: { numPoints: 30, interval: 24 * 60 * 60 * 1000, startPrice: 67741.5 },
   _6m: { numPoints: 180, interval: 24 * 60 * 60 * 1000, startPrice: 67741.5 },
-  _1y: { numPoints: 365, interval: 24 * 60 * 60 * 1000, startPrice: 67741.5 },
+  _1y: { numPoints: 365, interval: 24 * 60 * 60 * 1000, startPrice: 27741.5 },
+  _max: {
+    numPoints: 1365,
+    interval: 24 * 60 * 60 * 20 * 1000,
+    startPrice: 67741.5,
+  },
 };
 
 export const chartDummyData: { [key: string]: PriceEntry[] } = {
@@ -73,6 +78,7 @@ export const chartDummyData: { [key: string]: PriceEntry[] } = {
   _1m: [],
   _6m: [],
   _1y: [],
+  _max: [],
 };
 
 for (const range in timeRangeConfigs) {
