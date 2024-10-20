@@ -4,7 +4,7 @@ import { useStore } from "@/store";
 import { CoinData } from "@/types";
 import { getDaysFromTimeRange } from "@/utils";
 import { useEffect, useLayoutEffect, useState } from "react";
-import ChartView from "./ChartView";
+import ChartViewComponent from "./ChartView";
 import { Button } from "./ui/button";
 
 interface IProps {
@@ -51,7 +51,7 @@ export default function ChartComponent({ coin }: IProps) {
           setCoinPrices(prices);
         }
       } catch (e) {
-        console.error("COINGECKO:LIMIT");
+        console.error("COINGECKO:LIMIT", e);
         setLimitExceeded(true);
       }
     };
@@ -74,16 +74,36 @@ export default function ChartComponent({ coin }: IProps) {
 
     if (!document.fullscreenElement) {
       if (chartElement?.requestFullscreen) {
-        chartElement.requestFullscreen();
+        chartElement.requestFullscreen().catch((err) => {
+          console.error(
+            `Error attempting to enable fullscreen mode: ${err.message} (${err.name})`
+          );
+        });
       }
-      setIsFullscreen(true);
     } else {
       if (document.exitFullscreen) {
         document.exitFullscreen();
       }
-      setIsFullscreen(false);
     }
   }
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (
+        document.fullscreenElement === document.getElementById("currency-card")
+      ) {
+        setIsFullscreen(true);
+      } else {
+        setIsFullscreen(false);
+      }
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
 
   return (
     <div className="w-full">
@@ -93,6 +113,7 @@ export default function ChartComponent({ coin }: IProps) {
             variant="ghost"
             className="hover:bg-transparent hover:text-gray-700 p-0"
             onClick={toggleFullscreen}
+            aria-label={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -113,6 +134,7 @@ export default function ChartComponent({ coin }: IProps) {
           <Button
             variant="ghost"
             className="hover:bg-transparent hover:text-gray-700 p-0"
+            aria-label="Compare"
           >
             <svg
               width="24"
@@ -170,7 +192,7 @@ export default function ChartComponent({ coin }: IProps) {
             : "h-[300px]"
         } w-full transition-all duration-300`}
       >
-        <ChartView
+        <ChartViewComponent
           data={coinPrices}
           loading={limitExceeded || loading}
           limitExceeded={limitExceeded}

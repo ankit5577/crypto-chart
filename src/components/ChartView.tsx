@@ -1,8 +1,30 @@
-import { ColorType, createChart, ISeriesApi } from "lightweight-charts";
+// ChartComponent.tsx
+
+import { PriceEntry } from "@/types";
+import {
+  AreaData,
+  ColorType,
+  createChart,
+  ISeriesApi,
+} from "lightweight-charts";
 import { LegacyRef, useEffect, useRef } from "react";
 import { ChartSkeleton } from "./ChartSkeleton";
 
-export default function ChartComponent(props: any) {
+interface ChartProps {
+  data: PriceEntry[];
+  colors?: {
+    backgroundColor?: string;
+    lineColor?: string;
+    textColor?: string;
+    areaTopColor?: string;
+    areaBottomColor?: string;
+  };
+  loading: boolean;
+  limitExceeded: boolean;
+  useDummyDataHandler: () => void;
+}
+
+export default function ChartViewComponent(props: ChartProps) {
   const {
     data,
     colors: {
@@ -111,7 +133,7 @@ export default function ChartComponent(props: any) {
       });
     }
 
-    const formattedData = data?.map(([timestamp, value]: any) => ({
+    const formattedData = data?.map(([timestamp, value]: [number, number]) => ({
       time: Math.floor(timestamp / 1000),
       value: value,
     }));
@@ -123,7 +145,7 @@ export default function ChartComponent(props: any) {
       return;
     }
 
-    seriesRef.current?.setData(sortedData);
+    seriesRef.current?.setData(sortedData as AreaData[]);
 
     const handleResize = () => {
       if (chartContainerRef.current && chartRef.current) {
@@ -137,17 +159,23 @@ export default function ChartComponent(props: any) {
 
     window.addEventListener("resize", handleResize);
 
+    setTimeout(() => {
+      handleResize();
+    }, 1);
+
     return () => {
       window.removeEventListener("resize", handleResize);
       if (chartRef.current) {
         chartRef.current.remove();
         chartRef.current = null;
+        seriesRef.current = null;
       }
     };
   }, [
     data,
     backgroundColor,
     lineColor,
+    document?.fullscreenElement,
     textColor,
     areaTopColor,
     areaBottomColor,
@@ -159,7 +187,7 @@ export default function ChartComponent(props: any) {
       return (
         <ChartSkeleton
           text="CoinGecko API Limit Exceeded"
-          actionHandlerText="use dummy data"
+          actionHandlerText="Use Dummy Data"
           actionHandler={useDummyDataHandler}
         />
       );
@@ -177,6 +205,7 @@ export default function ChartComponent(props: any) {
         padding: "16px",
         width: "100%",
         height: "100%",
+        minHeight: "250px",
       }}
     />
   );
