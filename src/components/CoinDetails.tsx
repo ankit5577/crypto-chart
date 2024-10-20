@@ -50,7 +50,7 @@ export default function CoinDetails({ coin }: { coin: CoinData }) {
       <Header coin={coin} />
       <CardContent>
         <div className="flex w-full mb-4 text-sm text-gray-500">
-          <Tabs defaultValue="summary" className="w-full max-w-3xl">
+          <Tabs defaultValue="chart" className="w-full max-w-3xl">
             <TabsList className="grid h-12 w-full grid-cols-6 rounded-none p-0 animate-fade-in-up">
               {tabData.map((tab) => (
                 <TabsTrigger
