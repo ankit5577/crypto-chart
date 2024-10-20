@@ -1,4 +1,4 @@
-import { ColorType, createChart } from "lightweight-charts";
+import { ColorType, createChart, ISeriesApi, Time } from "lightweight-charts"; // **CHANGE**: Imported 'Time' and 'AreaData' types
 import { LegacyRef, useEffect, useRef } from "react";
 import { ChartSkeleton } from "./ChartSkeleton";
 
@@ -74,16 +74,11 @@ export default function ChartComponent(props: any) {
       },
       timeScale: {
         borderVisible: false,
-        visible: false,
-        timeVisible: false,
+        visible: true,
+        timeVisible: true,
         secondsVisible: false,
-        tickMarkFormatter: (time: any) => {
-          const date = new Date(time);
-          return date.toLocaleDateString("default", {
-            month: "short",
-            day: "numeric",
-          });
-        },
+        fixLeftEdge: true,
+        fixRightEdge: true,
       },
       handleScale: {
         axisPressedMouseMove: {
@@ -95,7 +90,7 @@ export default function ChartComponent(props: any) {
 
     chart.timeScale().fitContent();
 
-    const newSeries = chart.addAreaSeries({
+    const newSeries: ISeriesApi<"Area"> = chart.addAreaSeries({
       lineColor,
       lineWidth: 2,
       topColor: areaTopColor,
@@ -118,14 +113,39 @@ export default function ChartComponent(props: any) {
       value: value,
     }));
 
-    newSeries.setData(formattedData);
+    const sortedData = [...formattedData].sort((a, b) => a.time - b.time);
+
+    if (sortedData.length === 0) {
+      console.error("No data available to render the chart.");
+      return;
+    }
+
+    newSeries.setData(sortedData);
+
     const style = document.createElement("style");
     document.head.appendChild(style);
     window.addEventListener("resize", handleResize);
 
+    const handleVisibleRangeChanged = (newVisibleRange: {
+      from: Time;
+      to: Time;
+    }) => {};
+
+    // Subscribe to visible time range changes
+    chart
+      .timeScale()
+      .subscribeVisibleTimeRangeChange(handleVisibleRangeChanged);
+    // **CHANGE END**
+
     return () => {
       window.removeEventListener("resize", handleResize);
       document.head.removeChild(style);
+      // **CHANGE START**
+      // Unsubscribe from the visible time range changes
+      chart
+        .timeScale()
+        .unsubscribeVisibleTimeRangeChange(handleVisibleRangeChanged);
+      // **CHANGE END**
       chart.remove();
     };
   }, [
