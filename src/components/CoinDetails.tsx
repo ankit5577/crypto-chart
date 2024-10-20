@@ -44,9 +44,10 @@ export default function CoinDetails({ coin }: { coin: CoinData }) {
   const triggerClasses = `h-12 border-b-2 text-base text-gray-400
     data-[state=active]:border-b-2 data-[state=active]:border-b-primary
     data-[state=active]:bg-white data-[state=active]:text-gray-700`;
-
   return (
-    <Card className={`!bg-white neumorphic w-full`}>
+    <Card
+      className={`bg-white neumorphic w-full !rounded-2xl !shadow-[rgba(50,50,93,0.25)_0px_50px_100px_-20px,rgba(255,0,0,1)_0px_30px_60px_-30px]`}
+    >
       <Header coin={coin} />
       <CardContent>
         <div className="flex w-full mb-4 text-sm text-gray-500">
