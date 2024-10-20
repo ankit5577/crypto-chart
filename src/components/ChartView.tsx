@@ -1,4 +1,4 @@
-import { ColorType, createChart, ISeriesApi, Time } from "lightweight-charts"; // **CHANGE**: Imported 'Time' and 'AreaData' types
+import { ColorType, createChart, ISeriesApi } from "lightweight-charts";
 import { LegacyRef, useEffect, useRef } from "react";
 import { ChartSkeleton } from "./ChartSkeleton";
 
@@ -126,26 +126,9 @@ export default function ChartComponent(props: any) {
     document.head.appendChild(style);
     window.addEventListener("resize", handleResize);
 
-    const handleVisibleRangeChanged = (newVisibleRange: {
-      from: Time;
-      to: Time;
-    }) => {};
-
-    // Subscribe to visible time range changes
-    chart
-      .timeScale()
-      .subscribeVisibleTimeRangeChange(handleVisibleRangeChanged);
-    // **CHANGE END**
-
     return () => {
       window.removeEventListener("resize", handleResize);
       document.head.removeChild(style);
-      // **CHANGE START**
-      // Unsubscribe from the visible time range changes
-      chart
-        .timeScale()
-        .unsubscribeVisibleTimeRangeChange(handleVisibleRangeChanged);
-      // **CHANGE END**
       chart.remove();
     };
   }, [

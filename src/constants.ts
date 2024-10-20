@@ -44,7 +44,7 @@ function generateDummyData(
 
   for (let i = 0; i < numPoints; i++) {
     const timestamp = startTimestamp - i * interval;
-    // Simulate price fluctuation: +/- 1%
+    // create random
     const fluctuation = price * 0.01 * (Math.random() - 0.5);
     price = parseFloat((price + fluctuation).toFixed(2));
     data.unshift([timestamp, price]);
