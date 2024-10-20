@@ -36,7 +36,7 @@ export default function ChartComponent({ coin }: IProps) {
   function useDummyData() {
     console.log("using dummy data for", timeRange);
     setCoinPrices(chartDummyData[`_${timeRange}`]);
-    setLimitExceeded(() => false);
+    setLimitExceeded(false);
   }
 
   useLayoutEffect(() => {
@@ -52,7 +52,7 @@ export default function ChartComponent({ coin }: IProps) {
         }
       } catch (e) {
         console.error("COINGECKO:LIMIT");
-        setLimitExceeded(() => true);
+        setLimitExceeded(true);
       }
     };
 
@@ -61,20 +61,20 @@ export default function ChartComponent({ coin }: IProps) {
     } else {
       fetchData();
     }
-  }, [timeRange, coin?.id]);
+  }, [timeRange, coin?.id, clearCoinPrices, setCoinPrices]);
 
   useEffect(() => {
-    if (coinPrices?.length && coinPrices?.length > 0) {
+    if (coinPrices?.length > 0) {
       setLoading(false);
     }
-  }, [coinPrices?.length]);
+  }, [coinPrices]);
 
   function toggleFullscreen() {
     const chartElement = document.getElementById("currency-card");
 
     if (!document.fullscreenElement) {
       if (chartElement?.requestFullscreen) {
-        chartElement?.requestFullscreen();
+        chartElement.requestFullscreen();
       }
       setIsFullscreen(true);
     } else {
@@ -152,7 +152,7 @@ export default function ChartComponent({ coin }: IProps) {
               key={range}
               variant={timeRange === range ? "default" : "ghost"}
               onClick={() => setTimeRange(range)}
-              className={`px-4 !py-0 text-xs rounded-[0.5rem] ${
+              className={`px-4 py-0 text-xs rounded-[0.5rem] ${
                 timeRange === range
                   ? "bg-primary text-white"
                   : "text-gray-500 border-gray-300"
@@ -165,8 +165,10 @@ export default function ChartComponent({ coin }: IProps) {
       </div>
       <div
         className={`${
-          isFullscreen ? "h-[calc(100vh-200px)] bg-white" : "h-[300px]"
-        } w-full`}
+          isFullscreen
+            ? "fixed top-0 left-0 w-full h-full bg-white z-50"
+            : "h-[300px]"
+        } w-full transition-all duration-300`}
       >
         <ChartView
           data={coinPrices}

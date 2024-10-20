@@ -16,100 +16,103 @@ export default function ChartComponent(props: any) {
     limitExceeded,
     useDummyDataHandler,
   } = props;
-  const chartContainerRef = useRef<HTMLDivElement>();
+
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<ReturnType<typeof createChart> | null>(null);
+  const seriesRef = useRef<ISeriesApi<"Area"> | null>(null);
 
   console.log("@price", data, loading);
+
   useEffect(() => {
-    if (loading || !data || !chartContainerRef?.current) {
+    if (loading || !data || !chartContainerRef.current) {
       return;
     }
-    const handleResize = () => {
-      chart.applyOptions({ width: chartContainerRef?.current?.clientWidth });
-    };
 
-    const chart = createChart(chartContainerRef?.current as HTMLDivElement, {
-      layout: {
-        background: { type: ColorType.Solid, color: backgroundColor },
-        attributionLogo: false,
-        textColor,
-        fontFamily: "Inter, -apple-system, system-ui, sans-serif",
-      },
-      width: chartContainerRef?.current?.clientWidth,
-      height: 300,
-      rightPriceScale: {
-        visible: true,
-        borderVisible: true,
-        scaleMargins: {
-          top: 0.2,
-          bottom: 0.2,
+    if (!chartRef.current) {
+      chartRef.current = createChart(chartContainerRef.current, {
+        layout: {
+          background: { type: ColorType.Solid, color: backgroundColor },
+          attributionLogo: false,
+          textColor,
+          fontFamily: "Inter, -apple-system, system-ui, sans-serif",
         },
-        autoScale: true,
-        borderColor: "rgba(197, 203, 206, 0.3)",
-        textColor: "white",
-      },
-      leftPriceScale: {
-        visible: false,
-      },
-      grid: {
-        vertLines: {
+        width: chartContainerRef.current.clientWidth,
+        height: chartContainerRef.current.clientHeight,
+        rightPriceScale: {
           visible: true,
-          color: "rgba(197, 203, 206, 0.5)",
-          style: 1,
+          borderVisible: true,
+          scaleMargins: {
+            top: 0.2,
+            bottom: 0.2,
+          },
+          autoScale: true,
+          borderColor: "rgba(197, 203, 206, 0.3)",
+          textColor: "white",
         },
-        horzLines: {
+        leftPriceScale: {
           visible: false,
-          color: "rgba(197, 203, 206, 0.0)",
-          style: 1,
         },
-      },
-      crosshair: {
-        vertLine: {
+        grid: {
+          vertLines: {
+            visible: true,
+            color: "rgba(197, 203, 206, 0.5)",
+            style: 1,
+          },
+          horzLines: {
+            visible: false,
+            color: "rgba(197, 203, 206, 0.0)",
+            style: 1,
+          },
+        },
+        crosshair: {
+          vertLine: {
+            visible: true,
+            labelVisible: false,
+          },
+          horzLine: {
+            visible: true,
+            labelVisible: true,
+          },
+        },
+        timeScale: {
+          borderVisible: false,
           visible: true,
-          labelVisible: false,
+          timeVisible: true,
+          secondsVisible: false,
+          fixLeftEdge: true,
+          fixRightEdge: true,
         },
-        horzLine: {
-          visible: true,
-          labelVisible: true,
+        handleScale: {
+          axisPressedMouseMove: {
+            time: false,
+            price: false,
+          },
         },
-      },
-      timeScale: {
-        borderVisible: false,
-        visible: true,
-        timeVisible: true,
-        secondsVisible: false,
-        fixLeftEdge: true,
-        fixRightEdge: true,
-      },
-      handleScale: {
-        axisPressedMouseMove: {
-          time: false,
-          price: false,
-        },
-      },
-    });
+      });
 
-    chart.timeScale().fitContent();
+      chartRef.current.timeScale().fitContent();
 
-    const newSeries: ISeriesApi<"Area"> = chart.addAreaSeries({
-      lineColor,
-      lineWidth: 2,
-      topColor: areaTopColor,
-      bottomColor: areaBottomColor,
-      priceFormat: {
-        type: "price",
-        precision: 2,
-        minMove: 0.01,
-      },
-      lastValueVisible: true,
-      priceLineVisible: false,
-      crosshairMarkerVisible: false,
-      crosshairMarkerRadius: 4,
-      crosshairMarkerBorderColor: lineColor,
-      crosshairMarkerBackgroundColor: "white",
-    });
+      seriesRef.current = chartRef.current.addAreaSeries({
+        lineColor,
+        lineWidth: 2,
+        topColor: areaTopColor,
+        bottomColor: areaBottomColor,
+        priceFormat: {
+          type: "price",
+          precision: 2,
+          minMove: 0.01,
+        },
+        lastValueVisible: true,
+        priceLineVisible: false,
+        crosshairMarkerVisible: false,
+        crosshairMarkerRadius: 4,
+        crosshairMarkerBorderColor: lineColor,
+        crosshairMarkerBackgroundColor: "white",
+      });
+    }
 
     const formattedData = data?.map(([timestamp, value]: any) => ({
-      time: timestamp / 1000,
+      time: Math.floor(timestamp / 1000),
       value: value,
     }));
 
@@ -120,16 +123,26 @@ export default function ChartComponent(props: any) {
       return;
     }
 
-    newSeries.setData(sortedData);
+    seriesRef.current?.setData(sortedData);
 
-    const style = document.createElement("style");
-    document.head.appendChild(style);
+    const handleResize = () => {
+      if (chartContainerRef.current && chartRef.current) {
+        chartRef.current.applyOptions({
+          width: chartContainerRef.current.clientWidth,
+          height: chartContainerRef.current.clientHeight,
+        });
+        chartRef.current.timeScale().fitContent();
+      }
+    };
+
     window.addEventListener("resize", handleResize);
 
     return () => {
       window.removeEventListener("resize", handleResize);
-      document.head.removeChild(style);
-      chart.remove();
+      if (chartRef.current) {
+        chartRef.current.remove();
+        chartRef.current = null;
+      }
     };
   }, [
     data,
@@ -156,12 +169,14 @@ export default function ChartComponent(props: any) {
   return (
     <div
       id="currency-card"
-      ref={chartContainerRef as unknown as LegacyRef<HTMLDivElement>}
+      ref={chartContainerRef as LegacyRef<HTMLDivElement>}
       style={{
         position: "relative",
-        backgroundColor: "white",
+        backgroundColor: backgroundColor,
         borderRadius: "8px",
         padding: "16px",
+        width: "100%",
+        height: "100%",
       }}
     />
   );
