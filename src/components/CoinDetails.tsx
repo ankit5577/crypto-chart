@@ -1,13 +1,11 @@
-"use client";
-
 import { Card, CardContent } from "@/components/ui/card";
-import { Header } from "./Header";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { TwChart } from "./TwChart";
-import SummaryTab from "./SummaryTab";
-import StatisticsTab from "./StatisticTab";
-import AnalysisTab from "./AnalysisTab";
 import { CoinData } from "@/types";
+import AnalysisTab from "./AnalysisTab";
+import ChartComponent from "./Chart";
+import { Header } from "./Header";
+import StatisticsTab from "./StatisticTab";
+import SummaryTab from "./SummaryTab";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 
 export default function CoinDetails({ coin }: { coin: CoinData }) {
   const tabData = [
@@ -20,7 +18,7 @@ export default function CoinDetails({ coin }: { coin: CoinData }) {
     {
       value: "chart",
       label: "Chart",
-      content: <TwChart coin={coin} />,
+      content: <ChartComponent coin={coin} />,
       className: "rounded-tr-lg",
     },
     {
@@ -43,7 +41,7 @@ export default function CoinDetails({ coin }: { coin: CoinData }) {
     },
   ];
 
-  const triggerClasses = `h-12 border-b-2 text-base text-gray-400 
+  const triggerClasses = `h-12 border-b-2 text-base text-gray-400
     data-[state=active]:border-b-2 data-[state=active]:border-b-primary
     data-[state=active]:bg-white data-[state=active]:text-gray-700`;
 
@@ -52,7 +50,7 @@ export default function CoinDetails({ coin }: { coin: CoinData }) {
       <Header coin={coin} />
       <CardContent>
         <div className="flex w-full mb-4 text-sm text-gray-500">
-          <Tabs defaultValue="summary" className="w-full max-w-xl">
+          <Tabs defaultValue="summary" className="w-full max-w-3xl">
             <TabsList className="grid h-12 w-full grid-cols-6 rounded-none p-0 animate-fade-in-up">
               {tabData.map((tab) => (
                 <TabsTrigger

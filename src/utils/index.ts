@@ -1,5 +1,6 @@
 import { ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+
 const createApiEndpoint = (endpoint: string): string => {
   return `${import.meta.env.VITE_APP_API_URL}/${endpoint}`;
 };

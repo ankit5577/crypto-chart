@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CoinData } from "@/types";
 import { formatPrice } from "@/utils";
-import { CircleDollarSign, Coins, TrendingUp, ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, CircleDollarSign, Coins, TrendingUp } from "lucide-react";
 
 export default function StatisticsTab({ coin }: { coin: CoinData }) {
   return (

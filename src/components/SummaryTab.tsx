@@ -1,14 +1,13 @@
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { CoinData } from "@/types";
+import { formatPrice } from "@/utils";
 import {
-  ArrowUpRight,
   ArrowDownRight,
+  ArrowUpRight,
   DollarSign,
-  TrendingUp,
   TrendingDown,
 } from "lucide-react";
 import { Badge } from "./ui/badge";
-import { formatPrice } from "@/utils";
-import { CoinData } from "@/types";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
 export default function SummaryTab({ coin }: { coin: CoinData }) {
   const formatDate = (dateString: string) => {
@@ -42,20 +41,6 @@ export default function SummaryTab({ coin }: { coin: CoinData }) {
                 {coin.price_change_percentage_24h.toFixed(2)}%
               </span>
             )}
-          </p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Market Cap</CardTitle>
-          <TrendingUp className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            ${formatPrice(coin.market_cap.toString())}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Rank #{coin.market_cap_rank}
           </p>
         </CardContent>
       </Card>

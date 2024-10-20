@@ -1,39 +1,45 @@
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getCoinsList } from "./api/endpoints";
 import CoinDetails from "./components/CoinDetails";
 import { coinDummyData } from "./constants";
 import { useStore } from "./store";
 import { CoinData } from "./types";
 
-function App() {
+const App: React.FC = () => {
   const { setCoinsList } = useStore((state) => state);
   const [selectedCoin, setSelectedCoin] = useState<CoinData | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  useLayoutEffect(() => {
-    (async () => {
+  useEffect(() => {
+    const initializeCoins = async () => {
       try {
-        if (
-          coinDummyData &&
-          typeof coinDummyData === "object" &&
-          coinDummyData.id
-        ) {
+        if (coinDummyData && coinDummyData.id) {
           setSelectedCoin(coinDummyData);
           setCoinsList([coinDummyData]);
         } else {
           const fetchedCoinsList = await getCoinsList();
           setCoinsList(fetchedCoinsList);
-          if (fetchedCoinsList?.length > 0) {
+          if (fetchedCoinsList.length > 0) {
             setSelectedCoin(fetchedCoinsList[0]);
+          } else {
+            setError("No coins available.");
           }
         }
-      } catch (error) {
-        console.error("Error setting up coin data:", error);
+      } catch (err) {
+        console.error("Error setting up coin data:", err);
+        setError("Failed to load coin data.");
       }
-    })();
-  }, []);
+    };
+
+    initializeCoins();
+  }, [setCoinsList]);
+
+  if (error) {
+    return <div className="text-center text-red-500 mt-10">{error}</div>;
+  }
 
   if (!selectedCoin) {
-    return <div>Loading...</div>;
+    return <div className="text-center mt-10">Loading...</div>;
   }
 
   return (
@@ -41,6 +47,6 @@ function App() {
       <CoinDetails coin={selectedCoin} />
     </div>
   );
-}
+};
 
 export default App;
